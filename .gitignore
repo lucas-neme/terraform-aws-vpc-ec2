@@ -1,0 +1,23 @@
+# Estado e cache do Terraform: NUNCA versionar (o state pode conter segredos e IDs reais)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+.terraform.tfstate.lock.info
+# Variáveis com segredo ficam fora do git (os .tfvars de envs/ não têm segredo)
+*.auto.tfvars
+secret*.tfvars
+*.secret.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# Chaves e ambiente local
+*.pem
+*.key
+.env
+.env.*
+# Backend da AWS real (copie o .example e preencha localmente)
+envs/aws-real.backend.hcl
