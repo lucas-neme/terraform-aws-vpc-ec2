@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  TF_IN_AUTOMATION: "1"
+
+jobs:
+  terraform:
+    name: fmt, validate, test e tflint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff
+
+      - name: terraform validate (raiz e bootstrap)
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+          terraform -chdir=bootstrap init -backend=false -input=false
+          terraform -chdir=bootstrap validate
+
+      - name: terraform test (provider simulado, offline)
+        run: terraform test
+
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.66.0
+
+      - name: tflint
+        env:
+          GITHUB_TOKEN: ${{ github.token }} # evita limite de download do plugin
+        run: |
+          tflint --init
+          tflint --recursive --config "$GITHUB_WORKSPACE/.tflint.hcl" --format compact
+
+  checkov:
+    name: checkov (segurança)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: checkov
+        run: |
+          pip install checkov==3.4.6
+          checkov -d . --config-file .checkov.yaml
