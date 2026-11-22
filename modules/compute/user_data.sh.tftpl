@@ -1,0 +1,20 @@
+#!/bin/bash
+# Roda UMA vez, pelo cloud-init, no primeiro boot da instância.
+# As variáveis entre cifrão-chaves são preenchidas pelo Terraform (templatefile).
+set -euo pipefail
+
+apt-get update -y
+apt-get install -y nginx
+
+cat > /var/www/html/index.html <<'HTML'
+<!doctype html>
+<html lang="pt-BR">
+  <head><meta charset="utf-8"><title>${project}</title></head>
+  <body>
+    <h1>${project} - ${environment}</h1>
+    <p>Servidor provisionado com Terraform e configurado pelo user data.</p>
+  </body>
+</html>
+HTML
+
+systemctl enable --now nginx
