@@ -1,0 +1,16 @@
+# EXEMPLO de backend na AWS real (comentado de propósito).
+# 1. Rode o bootstrap na AWS real com um nome de bucket único:
+#      cd bootstrap && terraform apply -var use_localstack=false -var force_destroy=false \
+#        -var state_bucket_name=tfstate-<seu-nome>-vpc-ec2
+# 2. Copie este arquivo para envs/aws-real.backend.hcl (que está no .gitignore),
+#    descomente e ajuste o bucket.
+# 3. terraform init -reconfigure -backend-config=envs/aws-real.backend.hcl
+#
+# bucket       = "tfstate-<seu-nome>-vpc-ec2"
+# key          = "vpc-ec2/dev/terraform.tfstate"
+# region       = "us-east-1"
+# encrypt      = true
+# use_lockfile = true
+#
+# Antes do Terraform 1.10 o lock era uma tabela DynamoDB:
+# dynamodb_table = "terraform-locks"
