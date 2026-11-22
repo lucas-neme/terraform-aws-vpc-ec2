@@ -1,0 +1,17 @@
+# LocalStack: emula as APIs da AWS na sua máquina, sem conta e sem custo.
+# A versão fica FIXADA em 4.14 de propósito: a partir de 2026 a imagem "latest"
+# passou a exigir token de licença; a 4.14 é a última edição comunitária que sobe sem conta.
+services:
+  localstack:
+    image: localstack/localstack:4.14
+    container_name: tf-vpc-ec2-localstack
+    ports:
+      - "127.0.0.1:4566:4566"   # só na interface local
+    environment:
+      - SERVICES=ec2,s3,sts,iam
+      - EAGER_SERVICE_LOADING=1
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
