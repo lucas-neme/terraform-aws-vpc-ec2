@@ -1,0 +1,20 @@
+# checkov: procura más configurações de segurança no código Terraform.
+# Cada exceção abaixo é uma decisão CONSCIENTE de laboratório, com o motivo ao lado.
+# Em produção, cada uma vira item do backlog (ver "Próximos passos" no README).
+framework:
+  - terraform
+compact: true
+quiet: true
+skip-check:
+  # --- EC2 ---
+  - CKV_AWS_88   # IP público na EC2: é um servidor web de demonstração; em produção ficaria na sub-rede privada atrás de um ALB
+  - CKV_AWS_260  # porta 80 aberta para 0.0.0.0/0: é justamente o serviço web público; restrinja com allowed_http_cidrs
+  - CKV_AWS_126  # monitoramento detalhado (1 min) custa à parte; o básico (5 min) basta para o lab
+  - CKV2_AWS_41  # IAM role na EC2: o Nginx não chama nenhuma API da AWS; próximo passo é uma role só com SSM
+  # --- VPC ---
+  - CKV2_AWS_11  # VPC Flow Logs: exigem log group + role e geram custo no CloudWatch; próximo passo
+  # --- Bucket de state (bootstrap) ---
+  - CKV_AWS_144  # replicação entre regiões: custo e complexidade desproporcionais para um lab
+  - CKV_AWS_145  # KMS gerenciado pelo cliente: usamos SSE-S3 (AES256), sem custo de chave
+  - CKV_AWS_18   # access logging do bucket exige um segundo bucket só para logs
+  - CKV2_AWS_62  # notificações de evento do S3: não há consumidor para elas aqui
